@@ -49,7 +49,7 @@ export default async function handler(req, res) {
     const results = await Promise.all(
       inputs.map(async (input) => {
         const response = await client.models.generateContent({
-          model: "gemini-2.0-flash-lite",
+          model: "gemini-2.5-flash-lite",
           config: {
             systemInstruction: SYSTEM_INSTRUCTION,
             responseMimeType: "application/json",
