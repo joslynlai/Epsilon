@@ -75,6 +75,8 @@ interface UsePhaseLorenzOptions {
   targetParams: LorenzParams
   /** The target neon color (from volatility mapping) */
   targetColor: RGBColor
+  /** Starting trail color (defaults to STATUS_QUO_COLOR) */
+  startColor?: RGBColor
   /** Whether the simulation is running */
   active: boolean
   /** Called when the transition animation is complete */
@@ -89,6 +91,7 @@ export interface PhaseLorenzResult {
 export function usePhaseLorenz({
   targetParams,
   targetColor,
+  startColor = STATUS_QUO_COLOR,
   active,
   onTransitionComplete,
 }: UsePhaseLorenzOptions): PhaseLorenzResult {
@@ -117,8 +120,10 @@ export function usePhaseLorenz({
   onCompleteRef.current = onTransitionComplete
   const targetParamsRef = useRef(targetParams)
   const targetColorRef = useRef(targetColor)
+  const startColorRef = useRef(startColor)
   targetParamsRef.current = targetParams
   targetColorRef.current = targetColor
+  startColorRef.current = startColor
 
   // ── Setup / reset geometries when target changes ──────────────────────────
   useEffect(() => {
@@ -149,7 +154,7 @@ export function usePhaseLorenz({
       pointsGeo.setAttribute("color", colAttr)
       pointsGeo.setDrawRange(0, 0)
     }
-  }, [targetParams, targetColor])
+  }, [targetParams, targetColor, startColor])
 
   // ── Real-time animation loop ──────────────────────────────────────────────
   useFrame((_, delta) => {
@@ -177,7 +182,7 @@ export function usePhaseLorenz({
 
     // Current interpolated parameters and color
     const currentParams = lerpParams(STATUS_QUO_PARAMS, target, lerpT)
-    const currentColor = lerpColor(STATUS_QUO_COLOR, targetCol, lerpT)
+    const currentColor = lerpColor(startColorRef.current, targetCol, lerpT)
 
     // Scale substeps by delta to keep simulation speed more frame-rate stable.
     const scaledSteps = Math.round((delta / REFERENCE_FRAME_SECONDS) * STEPS_PER_FRAME)

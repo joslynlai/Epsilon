@@ -57,6 +57,30 @@ export function volatilityToColor(volatility: number): RGBColor {
   }
 }
 
+// ── Comparison mode palettes ────────────────────────────────────────────────
+// Volatility controls intensity/brightness within a fixed hue family,
+// so A and B are always visually distinct regardless of score similarity.
+
+const BLUE_DIM: RGBColor  = { r: 0.12, g: 0.22, b: 0.45 }
+const BLUE_NEON: RGBColor = { r: 0.1,  g: 0.55, b: 1.0  }
+
+const ORANGE_DIM: RGBColor  = { r: 0.5,  g: 0.22, b: 0.08 }
+const ORANGE_NEON: RGBColor = { r: 1.0,  g: 0.5,  b: 0.0  }
+
+/** Neutral status-quo color for comparison mode (avoids blue/orange clash) */
+export const COMPARISON_STATUS_QUO_COLOR: RGBColor = { r: 0.45, g: 0.45, b: 0.45 }
+
+/**
+ * Returns a comparison-mode color for the given choice index.
+ * Index 0 = Blue family, Index 1 = Orange family.
+ * Volatility (0-100) maps to intensity within that family.
+ */
+export function getComparisonColor(index: number, volatility: number): RGBColor {
+  const t = Math.max(0, Math.min(100, volatility)) / 100
+  if (index === 0) return lerpColor(BLUE_DIM, BLUE_NEON, t)
+  return lerpColor(ORANGE_DIM, ORANGE_NEON, t)
+}
+
 /** Convert RGB (0-1) to CSS hex string */
 export function rgbToHex(color: RGBColor): string {
   const r = Math.round(color.r * 255).toString(16).padStart(2, "0")

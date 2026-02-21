@@ -15,7 +15,7 @@ import type { LorenzParams } from "../utils/lorenzMath"
 import type { RGBColor } from "../utils/colorMapping"
 import { mockLLMAnalysis } from "../utils/mockAgent"
 import { scoresToParams } from "../utils/lorenzMath"
-import { volatilityToColor } from "../utils/colorMapping"
+import { volatilityToColor, getComparisonColor } from "../utils/colorMapping"
 
 export type AppPhase = "idle" | "loading" | "visualizing"
 export type AppMode = "single" | "comparison"
@@ -69,9 +69,11 @@ export const useEpsilonStore = create<EpsilonState>((set, get) => ({
 
     try {
       const analyses = await mockLLMAnalysis(inputs)
-      const attractors: AttractorData[] = analyses.map((analysis) => ({
+      const attractors: AttractorData[] = analyses.map((analysis, i) => ({
         targetParams: scoresToParams(analysis),
-        targetColor: volatilityToColor(analysis.volatility),
+        targetColor: mode === "comparison"
+          ? getComparisonColor(i, analysis.volatility)
+          : volatilityToColor(analysis.volatility),
         analysis,
       }))
       set({ phase: "visualizing", attractors })

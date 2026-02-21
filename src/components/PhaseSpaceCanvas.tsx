@@ -19,11 +19,17 @@ import {
 import { BlendFunction } from "postprocessing"
 import { Vector2 } from "three"
 import { useEpsilonStore } from "../store/epsilonStore"
+import { COMPARISON_STATUS_QUO_COLOR } from "../utils/colorMapping"
 import LorenzSystem from "./LorenzSystem"
 
-/** Camera positioned for a good 3/4 view of the attractor region */
-const CAMERA_POS: [number, number, number] = [55, 35, 65]
-const ORBIT_TARGET: [number, number, number] = [0, 0, 27]
+/** X-axis offset per side in comparison mode (wide enough to prevent wing overlap) */
+const COMPARISON_OFFSET = 45
+
+const SINGLE_CAMERA: [number, number, number] = [55, 35, 65]
+const SINGLE_TARGET: [number, number, number] = [0, 0, 27]
+
+const COMPARE_CAMERA: [number, number, number] = [0, 55, 160]
+const COMPARE_TARGET: [number, number, number] = [0, 0, 27]
 
 function Scene() {
   const phase = useEpsilonStore((s) => s.phase)
@@ -31,25 +37,30 @@ function Scene() {
   const onTransitionComplete = useEpsilonStore((s) => s.onTransitionComplete)
 
   const active = phase === "visualizing"
+  const isCompare = attractors.length > 1
 
   if (attractors.length === 0) return null
 
   return (
     <>
-      {/* Choice A — always rendered */}
       <LorenzSystem
         targetParams={attractors[0].targetParams}
         targetColor={attractors[0].targetColor}
+        startColor={isCompare ? COMPARISON_STATUS_QUO_COLOR : undefined}
+        volatility={attractors[0].analysis.volatility}
         active={active}
+        position={isCompare ? [-COMPARISON_OFFSET, 0, 0] : undefined}
         onTransitionComplete={onTransitionComplete}
       />
 
-      {/* Choice B — comparison mode only */}
-      {attractors.length > 1 && (
+      {isCompare && (
         <LorenzSystem
           targetParams={attractors[1].targetParams}
           targetColor={attractors[1].targetColor}
+          startColor={COMPARISON_STATUS_QUO_COLOR}
+          volatility={attractors[1].analysis.volatility}
           active={active}
+          position={[COMPARISON_OFFSET, 0, 0]}
         />
       )}
     </>
@@ -58,14 +69,19 @@ function Scene() {
 
 export default function PhaseSpaceCanvas() {
   const phase = useEpsilonStore((s) => s.phase)
+  const mode = useEpsilonStore((s) => s.mode)
+  const isCompare = mode === "comparison"
+
+  const cameraPos = isCompare ? COMPARE_CAMERA : SINGLE_CAMERA
+  const orbitTarget = isCompare ? COMPARE_TARGET : SINGLE_TARGET
 
   return (
     <div className="absolute inset-0">
       {phase === "visualizing" && (
         <Canvas
           camera={{
-            position: CAMERA_POS,
-            fov: 65,
+            position: cameraPos,
+            fov: isCompare ? 75 : 65,
             near: 0.1,
             far: 500,
           }}
@@ -77,13 +93,13 @@ export default function PhaseSpaceCanvas() {
           <Scene />
 
           <OrbitControls
-            target={ORBIT_TARGET}
+            target={orbitTarget}
             autoRotate
             autoRotateSpeed={0.3}
             enableDamping
             dampingFactor={0.05}
             minDistance={20}
-            maxDistance={200}
+            maxDistance={300}
           />
 
           <EffectComposer>
