@@ -13,7 +13,7 @@ import { create } from "zustand"
 import type { SemanticAnalysis } from "../utils/mockAgent"
 import type { LorenzParams } from "../utils/lorenzMath"
 import type { RGBColor } from "../utils/colorMapping"
-import { mockLLMAnalysis } from "../utils/mockAgent"
+import { analyzeDecisions } from "../utils/aiAgent"
 import { scoresToParams } from "../utils/lorenzMath"
 import { volatilityToColor, getComparisonColor } from "../utils/colorMapping"
 
@@ -68,7 +68,7 @@ export const useEpsilonStore = create<EpsilonState>((set, get) => ({
     set({ phase: "loading", mode, transitionComplete: false })
 
     try {
-      const analyses = await mockLLMAnalysis(inputs)
+      const analyses = await analyzeDecisions(inputs)
       const attractors: AttractorData[] = analyses.map((analysis, i) => ({
         targetParams: scoresToParams(analysis),
         targetColor: mode === "comparison"
