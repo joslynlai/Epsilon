@@ -4,6 +4,10 @@
 
 **Epsilon** is an interactive web-based visualization tool that maps human decisions and semantic concepts onto chaotic mathematical systems. By interpreting user input through Google Gemini, Epsilon renders dynamic, evolving Lorenz attractors that visually represent the "shape" of a choice -- bridging abstract nonlinear dynamics and intuitive human meaning through the lens of chaos theory.
 
+**Live Demo:** [epsilon3d.vercel.app](https://epsilon3d.vercel.app/)
+
+https://github.com/user-attachments/assets/4d6519ba-7467-4ef2-8153-53140c0939dc
+
 ## Features
 
 - **Text-to-Chaos Mapping:** Converts arbitrary text input into precise mathematical parameters via AI semantic analysis.
